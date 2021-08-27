@@ -10,8 +10,10 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "axios": "^0.21.1",
     "react": "17.0.2",
-    "react-native": "0.65.1"
+    "react-native": "0.65.1",
+    "searchable-flatlist": "^0.0.4"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

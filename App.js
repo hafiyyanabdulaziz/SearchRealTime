@@ -1,112 +1,113 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-
-import React from 'react';
-import type {Node} from 'react';
+import axios from 'axios';
+import React, {useEffect, useState} from 'react';
 import {
+  FlatList,
   SafeAreaView,
-  ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
-  useColorScheme,
+  TextInput,
   View,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const App = () => {
+  const [filteredData, setFilteredData] = useState([]);
+  const [masterData, setMasterData] = useState([]);
+  const [search, setSearch] = useState('');
 
-const Section = ({children, title}): Node => {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-};
+  useEffect(() => {
+    fetchPosts();
+    return () => {};
+  }, []);
 
-const App: () => Node = () => {
-  const isDarkMode = useColorScheme() === 'dark';
+  const fetchPosts = () => {
+    axios
+      .get('https://api.koseeker.id/property/')
+      .then(response => {
+        console.log('response api', response);
+        setFilteredData(response.data.data);
+        setMasterData(response.data.data);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const searchFilter = text => {
+    if (text) {
+      const newData = masterData.filter(item => {
+        const itemData = item.name ? item.name.toUpperCase() : ''.toUpperCase();
+        const textData = text.toUpperCase();
+        const hasil = itemData.indexOf(textData) > -1;
+        return hasil;
+      });
+      setFilteredData(newData);
+      setSearch(text);
+    } else {
+      setFilteredData(masterData);
+      setSearch(text);
+    }
+  };
+
+  const ItemView = ({item, index}) => {
+    return (
+      <>
+        <Text style={styles.itemStyle}>{item.name.toUpperCase()}</Text>
+        <Text style={styles.itemStyle}>
+          {item.address.address.toUpperCase()}
+        </Text>
+      </>
+    );
+  };
+
+  const ItemSeparatorView = () => {
+    return <View style={styles.itemSeparatorStyle} />;
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
+    <SafeAreaView style={styles.screen}>
+      <View style={styles.container}>
+        <TextInput
+          style={styles.textInputStyle}
+          value={search}
+          placeholder={'Search Here'}
+          underlineColorAndroid="transparent"
+          onChangeText={text => searchFilter(text)}
+        />
+        <Text>{filteredData.data}</Text>
+        <FlatList
+          data={filteredData}
+          keyExtractor={(item, index) => index.toString()}
+          ItemSeparatorComponent={ItemSeparatorView}
+          renderItem={ItemView}
+        />
+      </View>
     </SafeAreaView>
   );
 };
 
+export default App;
+
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  screen: {
+    flex: 1,
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  container: {
+    backgroundColor: 'white',
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
+  itemStyle: {
+    padding: 15,
   },
-  highlight: {
-    fontWeight: '700',
+  itemSeparatorStyle: {
+    height: 0.5,
+    width: '100%',
+    backgroundColor: '#C8C8C8',
+  },
+  textInputStyle: {
+    height: 50,
+    borderWidth: 1,
+    paddingLeft: 20,
+    margin: 5,
+    borderColor: '#009688',
+    backgroundColor: 'white',
   },
 });
-
-export default App;
