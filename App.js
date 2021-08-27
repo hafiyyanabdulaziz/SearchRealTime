@@ -32,13 +32,32 @@ const App = () => {
       });
   };
 
+  // getFilteredResults() {
+  //   let { data, type, searchProperty, searchTerm } = this.props;
+  //   return data.filter(
+  //     item =>
+  //       type && type === SearchableFlatlist.WORDS
+  //         ? new RegExp(`\\b${searchTerm}`, "gi").test(item[searchProperty])
+  //         : new RegExp(`${searchTerm}`, "gi").test(item[searchProperty])
+  //   );
+  // };
+
+  // const newSearchFilter = ({data, type, searchProperty, searchTerm}) => {
+  //   RegExp(`\\b${searchTerm}`, 'gi').test(item[searchProperty]);
+  // };
+
   const searchFilter = text => {
     if (text) {
       const newData = masterData.filter(item => {
-        const itemData = item.name ? item.name.toUpperCase() : ''.toUpperCase();
-        const textData = text.toUpperCase();
-        const hasil = itemData.indexOf(textData) > -1;
-        return hasil;
+        const iseng = RegExp(`\\b${text}`, 'gi').test([
+          item.name,
+          item.address.address,
+        ]);
+        console.log('iseng', iseng);
+        // const itemData = item.name ? item.name.toUpperCase() : ''.toUpperCase();
+        // const textData = text.toUpperCase();
+        // const hasil = itemData.indexOf(textData) > -1;
+        return iseng;
       });
       setFilteredData(newData);
       setSearch(text);
